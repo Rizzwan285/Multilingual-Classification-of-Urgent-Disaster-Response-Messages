@@ -26,13 +26,21 @@ This project builds a multilingual classification system that categorizes disast
 | **Situational Awareness** | Infrastructure damage, weather updates, caution advisories, general info |
 | **Irrelevant** | Sympathy messages, unrelated content, unclear/unjudgeable posts |
 
-## Dataset
+## Datasets
 
-We use the [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset — a collection of ~77K manually annotated disaster-related tweets from 17 major natural disaster events (2016–2019), including earthquakes, hurricanes, wildfires, and floods.
+### 1. HumAID
 
-Additionally, a small manually annotated dataset of disaster messages in an Indian regional language is used for cross-lingual evaluation.
+The [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset contains ~77K manually annotated disaster-related tweets from 17 major natural disaster events (2016–2019), including earthquakes, hurricanes, wildfires, and floods. Each tweet is labeled with one of 11 humanitarian categories. This is used as the primary dataset for training and evaluating all models.
 
-### Label Mapping
+### 2. Multilingual Disaster Response Messages
+
+The [Disaster Response Messages](https://github.com/rmunro/disaster_response_messages) dataset by Robert Munro contains ~25K messages from the Haiti earthquake (2010), Pakistan floods (2010), and Hurricane Sandy (2012). Messages are labeled with 38 binary categories. This dataset includes original messages in Haitian Creole and Urdu alongside English translations. It is used in separate experiments to study the effect of adding cross-domain training data on model performance.
+
+### 3. Indian Language Dataset
+
+A small manually annotated dataset of disaster-related messages in an Indian regional language (Telugu / Hindi / Malayalam) collected from public social media platforms. This is used for cross-lingual zero-shot evaluation.
+
+### Label Mapping (HumAID)
 
 HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 
@@ -52,45 +60,40 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 ├── LICENSE
 │
 ├── notebooks/
-│   ├── Data_Preprocessing.ipynb          # Data loading, label mapping, preprocessing, EDA
-│   ├── Baseline_SVM.ipynb                # TF-IDF + LinearSVC
-│   ├── Baseline_Naive_Bayes.ipynb        # TF-IDF + Multinomial Naive Bayes
-│   ├── Baseline_Logistic_Regression.ipynb# TF-IDF + Logistic Regression
-│   ├── XLM_RoBERTa.ipynb                # Fine-tuning XLM-RoBERTa
-│   ├── Cross_Lingual_Evaluation.ipynb    # Zero-shot on Indian language data
-│   └── Error_Analysis.ipynb              # Detailed error analysis across models
+│   ├── Data_Preprocessing.ipynb            # Data loading, label mapping, preprocessing, EDA
+│   └── Baseline_SVM.ipynb                  # TF-IDF + LinearSVC
 │
 ├── data/
-│   ├── raw/                              # Original HumAID TSV files (not tracked in git)
-│   │   ├── events_set1/                  # 11 events (~47K tweets)
-│   │   └── events_set2/                  # 6 events (~29K tweets)
+│   ├── raw/                                # Original dataset files (not tracked in git)
+│   │   ├── events_set1/                    # HumAID set1 — 11 events (~47K tweets)
+│   │   ├── events_set2/                    # HumAID set2 — 6 events (~29K tweets)
+│   │   └── disaster_response_messages/     # Munro dataset (~25K messages)
 │   ├── processed/
-│   │   └── humaid_processed.csv          # Output of Data_Preprocessing.ipynb
-│   └── indian_language/                  # Manually annotated regional language dataset
-│       └── annotation_guidelines.md
+│   │   └── humaid_processed.csv            # Output of Data_Preprocessing.ipynb
+│   └── indian_language/                    # Manually annotated regional language dataset
 │
 ├── results/
 │   ├── plots/
-│   │   ├── eda/
-│   │   ├── svm/
-│   │   ├── naive_bayes/
-│   │   ├── logistic_regression/
-│   │   ├── xlm_roberta/
-│   │   ├── cross_lingual/
-│   │   └── error_analysis/
+│   │   ├── eda/                            # EDA visualizations
+│   │   └── svm/                            # SVM baseline plots
 │   ├── svm_results.json
-│   ├── nb_results.json
-│   ├── lr_results.json
-│   ├── xlmr_results.json
-│   └── model_comparison.csv
+│   └── svm_errors.csv
 │
 └── docs/
     ├── project_proposal.pdf
-    ├── weekly_reports/
-    └── final_report.pdf
+    └── weekly_reports/
 ```
 
+> **Note:** This structure will grow as more models are added. New plot subfolders and result files will be added for each model (Naive Bayes, Logistic Regression, transformer models, etc.).
+
 ## Getting Started
+
+### Prerequisites
+
+- Python 3.9 or higher
+- pip (Python package manager)
+- Git
+- (Optional) NVIDIA GPU with CUDA for transformer fine-tuning (needed later)
 
 ### 1. Clone the Repository
 
@@ -119,17 +122,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-For transformer notebooks (XLM-RoBERTa), install PyTorch separately based on your system:
-- **With GPU (CUDA):** Visit [https://pytorch.org](https://pytorch.org) and select your CUDA version
-- **CPU only:** `pip install torch torchvision`
+### 4. Download the Datasets
 
-### 4. Download the HumAID Dataset
-
+**HumAID:**
 1. Go to [https://crisisnlp.qcri.org/humaid_dataset.html](https://crisisnlp.qcri.org/humaid_dataset.html)
 2. Download both event sets:
    - `HumAID_data_events_set1_47K` (11 events)
    - `HumAID_data_events_set2_29K` (6 events)
-3. Extract and place them in the `data/raw/` directory:
+3. Extract and place them in `data/raw/`:
 
 ```
 data/raw/
@@ -146,6 +146,11 @@ data/raw/
     │   └── ...
     └── ... (6 events)
 ```
+
+**Disaster Response Messages:**
+1. Go to [https://github.com/rmunro/disaster_response_messages](https://github.com/rmunro/disaster_response_messages)
+2. Download the CSV files (training, validation, test)
+3. Place them in `data/raw/disaster_response_messages/`
 
 ### 5. Update the Base Path
 
@@ -166,11 +171,9 @@ Run the notebooks **in order**. Each notebook depends on the output of the previ
 | 1 | `Data_Preprocessing.ipynb` | Loads raw data, maps labels, preprocesses text, generates EDA plots, saves `humaid_processed.csv` | No |
 | 2 | `Baseline_SVM.ipynb` | TF-IDF + LinearSVC baseline | No |
 
-**Note:** Notebooks 2–4 (baselines) can be run in any order after notebook 1. Notebook 5 must be run before notebook 6. Notebook 7 should be run last after all models have been trained.
+More notebooks will be added as the project progresses (Naive Bayes, Logistic Regression, transformer models, cross-lingual evaluation, error analysis).
 
 ## Reproducing Results
-
-To reproduce all results reported in the project report:
 
 ```bash
 # 1. Set up environment
@@ -180,16 +183,26 @@ python -m venv venv
 venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 
-# 2. Download HumAID data into data/raw/ (see step 4 above)
+# 2. Download datasets into data/raw/ (see step 4 above)
 
 # 3. Update BASE_DIR in all notebooks
 
-# 4. Run notebooks in order (1 → 7)
-#    Open each notebook in Jupyter and run all cells
+# 4. Run notebooks in order
 jupyter notebook notebooks/
 ```
 
+## Dependencies
 
+```
+pandas>=1.5.0
+numpy>=1.23.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
+scikit-learn>=1.2.0
+nltk>=3.8.0
+```
+
+Transformer-related dependencies (`transformers`, `torch`) will be needed for later notebooks. See `requirements.txt` for the complete list.
 
 ## Evaluation Metrics
 
@@ -205,10 +218,9 @@ Metrics reported:
 
 - **Class imbalance:** Resource Requests is the smallest class (~3.4% of data). All models use balanced class weights to mitigate this.
 - **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect our experiments.
+- **Raw data not in git:** The raw dataset files are too large for GitHub. Follow the download instructions above to get them.
 
 ## Citation
-
-If you use this work, please cite the HumAID dataset:
 
 ```bibtex
 @inproceedings{alam2021humaid,
@@ -217,11 +229,19 @@ If you use this work, please cite the HumAID dataset:
   booktitle={Proceedings of the International AAAI Conference on Web and Social Media},
   year={2021}
 }
+
+@phdthesis{munro12dissertation,
+  author={Robert Munro},
+  title={Processing short message communications in low-resource languages},
+  school={Stanford University},
+  year={2012},
+  url={https://purl.stanford.edu/cg721hb0673}
+}
 ```
 
 ## License
 
-This project is for academic purposes as part of the NLP course at TIET. The HumAID dataset is used under its original licensing terms.
+This project is for academic purposes as part of the NLP course at TIET. The HumAID dataset and Disaster Response Messages dataset are used under their respective licensing terms.
 
 ## Contact
 
