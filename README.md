@@ -92,13 +92,6 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 
 ## Getting Started
 
-### Prerequisites
-
-- Python 3.9 or higher
-- pip (Python package manager)
-- Git
-- (Optional) NVIDIA GPU with CUDA for transformer fine-tuning
-
 ### 1. Clone the Repository
 
 ```bash
@@ -172,11 +165,6 @@ Run the notebooks **in order**. Each notebook depends on the output of the previ
 |---|---|---|---|
 | 1 | `Data_Preprocessing.ipynb` | Loads raw data, maps labels, preprocesses text, generates EDA plots, saves `humaid_processed.csv` | No |
 | 2 | `Baseline_SVM.ipynb` | TF-IDF + LinearSVC baseline | No |
-| 3 | `Baseline_Naive_Bayes.ipynb` | TF-IDF + Multinomial Naive Bayes baseline | No |
-| 4 | `Baseline_Logistic_Regression.ipynb` | TF-IDF + Logistic Regression baseline | No |
-| 5 | `XLM_RoBERTa.ipynb` | Fine-tuning multilingual transformer | Yes (recommended) |
-| 6 | `Cross_Lingual_Evaluation.ipynb` | Zero-shot evaluation on Indian language data | Yes (recommended) |
-| 7 | `Error_Analysis.ipynb` | Comparative error analysis across all models | No |
 
 **Note:** Notebooks 2–4 (baselines) can be run in any order after notebook 1. Notebook 5 must be run before notebook 6. Notebook 7 should be run last after all models have been trained.
 
@@ -201,22 +189,7 @@ pip install -r requirements.txt
 jupyter notebook notebooks/
 ```
 
-If you only want to reproduce the baseline results (no GPU needed), run notebooks 1–4 and skip 5–6.
 
-## Dependencies
-
-```
-pandas>=1.5.0
-numpy>=1.23.0
-matplotlib>=3.6.0
-seaborn>=0.12.0
-scikit-learn>=1.2.0
-nltk>=3.8.0
-transformers>=4.30.0       # For XLM-RoBERTa notebook
-torch>=2.0.0               # For XLM-RoBERTa notebook
-```
-
-See `requirements.txt` for the complete list.
 
 ## Evaluation Metrics
 
@@ -232,7 +205,6 @@ Metrics reported:
 
 - **Class imbalance:** Resource Requests is the smallest class (~3.4% of data). All models use balanced class weights to mitigate this.
 - **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect our experiments.
-- **GPU memory:** If XLM-RoBERTa runs out of GPU memory, reduce `batch_size` from 16 to 8 in the notebook configuration.
 
 ## Citation
 
