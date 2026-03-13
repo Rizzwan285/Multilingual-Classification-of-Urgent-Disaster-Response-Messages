@@ -63,10 +63,10 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 │   ├── Data_Preprocessing.ipynb            # Data loading, label mapping, preprocessing, EDA
 │   └── Baseline_SVM.ipynb                  # TF-IDF + LinearSVC
 │
-├── data/
+├── datasets/
 │   ├── raw/                                # Original dataset files (not tracked in git)
-│   │   ├── events_set1/                    # HumAID set1 — 11 events (~47K tweets)
-│   │   ├── events_set2/                    # HumAID set2 — 6 events (~29K tweets)
+│   │   ├── HumAID_data_events_set1_47K/    # HumAID set1 — 11 events (~47K tweets)
+│   │   ├── HumAID_data_events_set2_29K/    # HumAID set2 — 6 events (~29K tweets)
 │   │   └── disaster_response_messages/     # Munro dataset (~25K messages)
 │   ├── processed/
 │   │   └── humaid_processed.csv            # Output of Data_Preprocessing.ipynb
@@ -129,22 +129,22 @@ pip install -r requirements.txt
 2. Download both event sets:
    - `HumAID_data_events_set1_47K` (11 events)
    - `HumAID_data_events_set2_29K` (6 events)
-3. Extract and place them in `data/raw/`:
+3. Extract and place them in `datasets/raw/`:
 
 ```
-data/raw/
-├── events_set1/
-│   ├── canada_wildfires_2016/
-│   │   ├── canada_wildfires_2016_train.tsv
-│   │   ├── canada_wildfires_2016_dev.tsv
-│   │   └── canada_wildfires_2016_test.tsv
-│   ├── cyclone_idai_2019/
+datasets/raw/
+├── HumAID_data_events_set1_47K/
+│   ├── events_set1/
+│   │   ├── canada_wildfires_2016/
+│   │   │   ├── canada_wildfires_2016_train.tsv
+│   │   │   ├── canada_wildfires_2016_dev.tsv
+│   │   │   └── canada_wildfires_2016_test.tsv
 │   │   └── ...
-│   └── ... (11 events)
-└── events_set2/
-    ├── california_wildfires_2018/
+└── HumAID_data_events_set2_29K/
+    ├── events_set2/
+    │   ├── california_wildfires_2018/
+    │   │   └── ...
     │   └── ...
-    └── ... (6 events)
 ```
 
 **Disaster Response Messages:**
@@ -191,19 +191,6 @@ pip install -r requirements.txt
 jupyter notebook notebooks/
 ```
 
-## Dependencies
-
-```
-pandas>=1.5.0
-numpy>=1.23.0
-matplotlib>=3.6.0
-seaborn>=0.12.0
-scikit-learn>=1.2.0
-nltk>=3.8.0
-```
-
-Transformer-related dependencies (`transformers`, `torch`) will be needed for later notebooks. See `requirements.txt` for the complete list.
-
 ## Evaluation Metrics
 
 Given the high-stakes nature of disaster response, we prioritize **recall** for urgent categories (Critical Rescue and Resource Requests). A missed urgent message can result in delayed assistance and serious harm.
@@ -218,7 +205,7 @@ Metrics reported:
 
 - **Class imbalance:** Resource Requests is the smallest class (~3.4% of data). All models use balanced class weights to mitigate this.
 - **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect our experiments.
-- **Raw data not in git:** The raw dataset files are too large for GitHub. Follow the download instructions above to get them.
+
 
 ## Citation
 
@@ -241,7 +228,7 @@ Metrics reported:
 
 ## License
 
-This project is for academic purposes as part of the NLP course at TIET. The HumAID dataset and Disaster Response Messages dataset are used under their respective licensing terms.
+This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset and Disaster Response Messages dataset are used under their respective licensing terms.
 
 ## Contact
 
