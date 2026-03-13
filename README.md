@@ -36,10 +36,6 @@ The [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset contains ~7
 
 The [Disaster Response Messages](https://github.com/rmunro/disaster_response_messages) dataset by Robert Munro contains ~25K messages from the Haiti earthquake (2010), Pakistan floods (2010), and Hurricane Sandy (2012). Messages are labeled with 38 binary categories. This dataset includes original messages in Haitian Creole and Urdu alongside English translations. It is used in separate experiments to study the effect of adding cross-domain training data on model performance.
 
-### 3. Indian Language Dataset
-
-A small manually annotated dataset of disaster-related messages in an Indian regional language (Telugu / Hindi / Malayalam) collected from public social media platforms. This is used for cross-lingual zero-shot evaluation.
-
 ### Label Mapping (HumAID)
 
 HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
@@ -64,7 +60,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 │   └── Baseline_SVM.ipynb                  # TF-IDF + LinearSVC
 │
 ├── datasets/
-│   ├── raw/                                # Original dataset files (not tracked in git)
+│   ├── raw/                                # Original dataset files
 │   │   ├── HumAID_data_events_set1_47K/    # HumAID set1 — 11 events (~47K tweets)
 │   │   ├── HumAID_data_events_set2_29K/    # HumAID set2 — 6 events (~29K tweets)
 │   │   └── disaster_response_messages/     # Munro dataset (~25K messages)
@@ -98,9 +94,11 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/disaster-response-classification.git
-cd disaster-response-classification
+git clone https://github.com/Rizzwan285/Multilingual-Classification-of-Urgent-Disaster-Response-Messages.git
+cd Multilingual-Classification-of-Urgent-Disaster-Response-Messages
 ```
+
+> **Note:** The raw datasets are already included in this repository under `datasets/raw/`. You don't need to download them separately after cloning.
 
 ### 2. Create a Virtual Environment (Recommended)
 
@@ -116,43 +114,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Download the Datasets
-
-**HumAID:**
-1. Go to [https://crisisnlp.qcri.org/humaid_dataset.html](https://crisisnlp.qcri.org/humaid_dataset.html)
-2. Download both event sets:
-   - `HumAID_data_events_set1_47K` (11 events)
-   - `HumAID_data_events_set2_29K` (6 events)
-3. Extract and place them in `datasets/raw/`:
-
-```
-datasets/raw/
-├── HumAID_data_events_set1_47K/
-│   ├── events_set1/
-│   │   ├── canada_wildfires_2016/
-│   │   │   ├── canada_wildfires_2016_train.tsv
-│   │   │   ├── canada_wildfires_2016_dev.tsv
-│   │   │   └── canada_wildfires_2016_test.tsv
-│   │   └── ...
-└── HumAID_data_events_set2_29K/
-    ├── events_set2/
-    │   ├── california_wildfires_2018/
-    │   │   └── ...
-    │   └── ...
-```
-
-**Disaster Response Messages:**
-1. Go to [https://github.com/rmunro/disaster_response_messages](https://github.com/rmunro/disaster_response_messages)
-2. Download the CSV files (training, validation, test)
-3. Place them in `data/raw/disaster_response_messages/`
-
-### 5. Update the Base Path
+### 4. Update the Base Path
 
 Open `notebooks/Data_Preprocessing.ipynb` and update `BASE_DIR` in the configuration cell to point to your project directory:
 
@@ -162,7 +124,7 @@ BASE_DIR = r"C:\path\to\your\disaster-response-classification"
 
 Update the same `BASE_DIR` in all other notebooks as well.
 
-### 6. Run the Notebooks
+### 5. Run the Notebooks
 
 Run the notebooks **in order**. Each notebook depends on the output of the previous one.
 
@@ -176,20 +138,30 @@ More notebooks will be added as the project progresses (Naive Bayes, Logistic Re
 ## Reproducing Results
 
 ```bash
-# 1. Set up environment
-git clone https://github.com/<your-username>/disaster-response-classification.git
+# 1. Clone and set up environment
+git clone https://github.com/Rizzwan285/Multilingual-Classification-of-Urgent-Disaster-Response-Messages.git
 cd disaster-response-classification
 python -m venv venv
 venv\Scripts\activate          # Windows
-pip install -r requirements.txt
 
-# 2. Download datasets into data/raw/ (see step 4 above)
+# 2. Update BASE_DIR in all notebooks
 
-# 3. Update BASE_DIR in all notebooks
-
-# 4. Run notebooks in order
+# 3. Run notebooks in order
 jupyter notebook notebooks/
 ```
+
+## Dependencies
+
+```
+pandas>=1.5.0
+numpy>=1.23.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
+scikit-learn>=1.2.0
+nltk>=3.8.0
+```
+
+Transformer-related dependencies (`transformers`, `torch`) will be needed for later notebooks.
 
 ## Evaluation Metrics
 
@@ -206,6 +178,11 @@ Metrics reported:
 - **Class imbalance:** Resource Requests is the smallest class (~3.4% of data). All models use balanced class weights to mitigate this.
 - **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect our experiments.
 
+## Dataset Sources
+
+If you want to download the datasets independently:
+- **HumAID:** [https://crisisnlp.qcri.org/humaid_dataset.html](https://crisisnlp.qcri.org/humaid_dataset.html)
+- **Disaster Response Messages:** [https://github.com/rmunro/disaster_response_messages](https://github.com/rmunro/disaster_response_messages)
 
 ## Citation
 
