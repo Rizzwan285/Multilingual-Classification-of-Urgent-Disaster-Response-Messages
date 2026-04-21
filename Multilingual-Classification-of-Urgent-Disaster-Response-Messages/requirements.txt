@@ -17,3 +17,5 @@ accelerate
 # plotting confusion matrices for the report
 matplotlib
 seaborn
+
+jupyter
