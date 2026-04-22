@@ -6,3 +6,4 @@ trained_models/
 offline_models/
 __pycache__/
 *.pyc
+.vscode
