@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-nlp_env
-=======
 # --- DATA & MODELS (Too large for Git) ---
 datasets/
 offline_models/
 trained_models/
-results/
+results/local*
 
 # --- LOGS & SLURM OUTPUTS ---
 nlp_logs/
@@ -36,4 +33,3 @@ __pycache__/
 .vscode
 
 .env
->>>>>>> d83b19fd6d94507ff0c05093b1961f7db544b451
