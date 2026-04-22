@@ -1,6 +1,12 @@
 # --- DATA & MODELS (Too large for Git) ---
 datasets/
-offline_models/
+
+# Ignore everything inside the offline_models directory
+offline_models/*
+
+# EXCEPT for the ml_baselines folder and its contents
+!offline_models/ml_baselines/
+
 trained_models/
 results/
 

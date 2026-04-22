@@ -1,0 +1,45 @@
+{
+  "Critical Rescue": {
+    "precision": 0.8886852954649564,
+    "recall": 0.8952468850946008,
+    "f1-score": 0.8919540229885058,
+    "support": 2167.0
+  },
+  "Irrelevant": {
+    "precision": 0.47845953002610964,
+    "recall": 0.602796052631579,
+    "f1-score": 0.5334788937409025,
+    "support": 1216.0
+  },
+  "Resource Requests": {
+    "precision": 0.4991243432574431,
+    "recall": 0.5523255813953488,
+    "f1-score": 0.5243790248390064,
+    "support": 516.0
+  },
+  "Situational Awareness": {
+    "precision": 0.8554099951479864,
+    "recall": 0.7918850127264561,
+    "f1-score": 0.8224226403358731,
+    "support": 6679.0
+  },
+  "Volunteering and Donations": {
+    "precision": 0.8177746346063178,
+    "recall": 0.8393418824098717,
+    "f1-score": 0.8284179104477611,
+    "support": 4133.0
+  },
+  "accuracy": 0.7964108490245395,
+  "macro avg": {
+    "precision": 0.7078907597005626,
+    "recall": 0.7363190828515712,
+    "f1-score": 0.7201304984704098,
+    "support": 14711.0
+  },
+  "weighted avg": {
+    "precision": 0.8060826529349782,
+    "recall": 0.7964108490245395,
+    "f1-score": 0.8000113056968152,
+    "support": 14711.0
+  }
+}
