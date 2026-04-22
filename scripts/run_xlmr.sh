@@ -19,4 +19,4 @@ export MKL_NUM_THREADS=1
 export TOKENIZERS_PARALLELISM=false
 export CUDA_VISIBLE_DEVICES=0
 
-python -u src/train_xlm_roberta.py
+python -u src/train_xlm_roberta.py --model_name local_xlm_roberta

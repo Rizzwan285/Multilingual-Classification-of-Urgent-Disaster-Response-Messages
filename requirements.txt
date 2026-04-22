@@ -31,3 +31,7 @@ seaborn
 
 # notebook environment
 jupyter
+
+protobuf 
+sentencepiece
+optuna
