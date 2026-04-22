@@ -4,6 +4,7 @@ numpy
 
 # machine learning baselines and evaluation metrics
 scikit-learn
+joblib                  # Needed for saving/loading your ML baseline models (TF-IDF, SVM, etc.)
 
 # core deep learning backend
 torch
@@ -13,11 +14,20 @@ transformers
 datasets
 huggingface_hub
 accelerate
+sentencepiece           # CRITICAL: XLM-RoBERTa's tokenizer will crash without this
+
+# hyperparameter tuning
+optuna                  # Needed if you run the automated hyperparameter search
+
+# preprocessing and active learning
+indic-transliteration   # Needed for converting Manglish to native Malayalam script
+openpyxl                # Needed for pandas to read/write .xlsx files in active learning
+tqdm                    # Needed for the progress bar in the uncertainty extraction loop
+deep_translator
 
 # plotting confusion matrices for the report
 matplotlib
 seaborn
 
+# notebook environment
 jupyter
-
-deep_translator

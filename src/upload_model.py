@@ -1,20 +1,30 @@
 import os
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-# Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
-MODEL_DIR = os.path.join(ROOT_DIR, "model")
+TRAINED_MODELS_DIR = os.path.join(ROOT_DIR, "trained_models")
 
-# Choose your Hugging Face username and a name for the model
-HF_REPO_NAME = "your-username/xlm-roberta-disaster-response"
+models_to_upload = {
+    "local_muril": "Rizwan285/muril-disaster-response",
+    "local_indic_bert": "Rizwan285/indicbert-disaster-response",
+    "local_mbert": "Rizwan285/mbert-disaster-response",
+    "local_xlm_roberta": "Rizwan285/xlm-roberta-disaster-response"
+}
 
-print(f"Loading trained model from {MODEL_DIR}...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+for local_name, hf_repo in models_to_upload.items():
+    model_path = os.path.join(TRAINED_MODELS_DIR, local_name)
+    
+    print(f"Loading {local_name} from {model_path}...")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        
+        print(f"Pushing to Hugging Face as {hf_repo}...")
+        tokenizer.push_to_hub(hf_repo)
+        model.push_to_hub(hf_repo)
+        print(f"Successfully uploaded {local_name}!\n")
+    except Exception as e:
+        print(f"Failed to upload {local_name}: {e}\n")
 
-print(f"Pushing to Hugging Face Hub as '{HF_REPO_NAME}'...")
-tokenizer.push_to_hub(HF_REPO_NAME)
-model.push_to_hub(HF_REPO_NAME)
-
-print("Upload complete!")
+print("All uploads finished!")

@@ -12,12 +12,11 @@
 
 mkdir -p nlp_logs
 source ~/.bashrc
-source nlp_env/bin/activate
+conda activate nlp_master
 
-# --- SEGFAULT PREVENTION SETTINGS ---
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export TOKENIZERS_PARALLELISM=false
-export CUDA_VISIBLE_DEVICES=0  # Hides the 2nd GPU so PyTorch doesn't crash!
+export CUDA_VISIBLE_DEVICES=0
 
 python -u src/train_xlm_roberta.py

@@ -1,9 +1,31 @@
-nlp_env
-.venv
-.vscode
-nlp_logs
-trained_models/
+# --- DATA & MODELS (Too large for Git) ---
+datasets/
 offline_models/
+trained_models/
+results/
+
+# --- LOGS & SLURM OUTPUTS ---
+nlp_logs/
+*.out
+*.err
+logs_*/
+
+# --- ENVIRONMENTS ---
+.venv/
+nlp_env/
+node_modules/
+.env
+
+# --- PYTHON Crap ---
 __pycache__/
-*.pyc
-.vscode
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# --- JUPYTER ---
+.ipynb_checkpoints/
+
+# --- IDE SETTINGS ---
+.vscode/
+.idea/
+.DS_Store
