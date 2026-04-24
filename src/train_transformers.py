@@ -5,7 +5,6 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 from sklearn.utils.class_weight import compute_class_weight
-<<<<<<< HEAD
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from transformers import (
     AutoTokenizer, 
@@ -28,7 +27,7 @@ REAL_CSV = BASE_DIR / "datasets" / "processed" / "humaid_processed.csv"
 AUGMENTED_CSV = BASE_DIR / "datasets" / "processed" / "humaid_train_augmented.csv"
 RESULTS_DIR = BASE_DIR / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-=======
+
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datetime import datetime
@@ -54,13 +53,11 @@ MODEL_RESULTS_DIR = os.path.join(ROOT_DIR, "results", f"{args.model_name}_{run_i
 OUTPUT_DIR = os.path.join(MODEL_RESULTS_DIR, "checkpoints")
 FINAL_MODEL_DIR = os.path.join(MODEL_RESULTS_DIR, "final_model")
 LOG_DIR = os.path.join(MODEL_RESULTS_DIR, "logs")
->>>>>>> 54073d1 (Updated the files)
 
 LABEL_NAMES = ['Situational Awareness', 'Critical Rescue', 'Volunteering and Donations', 'Irrelevant', 'Resource Requests']
 label2id = {label: i for i, label in enumerate(LABEL_NAMES)}
 id2label = {i: label for i, label in enumerate(LABEL_NAMES)}
 
-<<<<<<< HEAD
 print("Loading datasets...")
 # Load REAL data ONLY to extract the Dev and Test splits
 real_df = pd.read_csv(REAL_CSV)
@@ -115,14 +112,11 @@ class WeightedLossTrainer(Trainer):
         loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
         return (loss, outputs) if return_outputs else loss
 
-=======
->>>>>>> 54073d1 (Updated the files)
 def compute_metrics(pred):
     labels = pred.label_ids
     preds = pred.predictions.argmax(-1)
     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='macro', zero_division=0)
     acc = accuracy_score(labels, preds)
-<<<<<<< HEAD
     return {'accuracy': acc, 'macro_f1': f1, 'macro_precision': precision, 'macro_recall': recall}
 
 # ==========================================
@@ -196,7 +190,6 @@ def main():
         trainer.save_model(str(final_model_path))
         tokenizer.save_pretrained(str(final_model_path))
         print(f"Saved {local_name} to {final_model_path}\n")
-=======
     return {
         'accuracy': acc,
         'f1': f1,
@@ -264,7 +257,6 @@ def train_model():
     trainer.train()
     trainer.save_model(FINAL_MODEL_DIR)
     tokenizer.save_pretrained(FINAL_MODEL_DIR)
->>>>>>> 54073d1 (Updated the files)
 
 if __name__ == "__main__":
     main()
