@@ -43,6 +43,17 @@ RANDOM_SEED = 42
 
 
 def merge():
+    # --- Print resolved paths up front so you always know where things go ---
+    print("=" * 60)
+    print("PATH CONFIGURATION")
+    print("=" * 60)
+    print(f"BASE_DIR:      {BASE_DIR}")
+    print(f"Reading real:  {REAL_CSV}")
+    print(f"Reading synth: {SYNTH_CSV}")
+    print(f"Will save to:  {AUGMENTED_CSV}")
+    print("=" * 60)
+    print()
+
     # --- Load real data, keep only train split ---
     if not REAL_CSV.exists():
         raise FileNotFoundError(f"Real processed data not found at {REAL_CSV}")
@@ -92,12 +103,13 @@ def merge():
     combined = pd.concat([real_train, synth_df], ignore_index=True)
     combined = combined.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
-    # --- Save ---
+    # --- Ensure output directory exists, then save ---
+    AUGMENTED_CSV.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(AUGMENTED_CSV, index=False)
 
     # --- Report ---
     print("=" * 60)
-    print(f"Saved augmented training set → {AUGMENTED_CSV}")
+    print(f"Saved augmented training set -> {AUGMENTED_CSV.resolve()}")
     print(f"Total rows: {len(combined):,}")
     print(f"  Real:      {(~combined['is_synthetic']).sum():,}")
     print(f"  Synthetic: {combined['is_synthetic'].sum():,}")
