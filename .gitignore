@@ -1,14 +1,16 @@
 nlp_env
-# --- DATA & MODELS (Too large for Git) ---
-datasets/
 
+datasets/raw/
+!datasets/raw/README.md
 # Ignore everything inside the offline_models directory
 offline_models/*
 
 # EXCEPT for the ml_baselines folder and its contents
 !offline_models/ml_baselines/
 
-trained_models/
+trained_models/*
+!trained_models/ml_baselines
+
 results/local*
 
 # --- LOGS & SLURM OUTPUTS ---
@@ -31,7 +33,7 @@ __pycache__/
 .pytest_cache/
 
 # --- JUPYTER ---
-.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
 
 # --- IDE SETTINGS ---
 .vscode/
