@@ -20,6 +20,7 @@ logs_*/
 # --- ENVIRONMENTS ---
 .venv/
 nlp_env/
+nlp_master/
 node_modules/
 .env
 
