@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=train_xlmr
-#SBATCH --partition=gpu01         # Route to GPU partition
+#SBATCH --partition=gpu01,gpu02,gpu03         # Route to GPU partition
 #SBATCH --gres=gpu:1             # Request 1 GPU
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
