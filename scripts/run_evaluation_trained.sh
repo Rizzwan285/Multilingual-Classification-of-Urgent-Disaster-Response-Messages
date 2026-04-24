@@ -17,9 +17,16 @@ conda activate nlp_master
 
 export PYTHONNOUSERSITE=1
 export OMP_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export TOKENIZERS_PARALLELISM=false
+export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
+export CUDA_VISIBLE_DEVICES=0
 
 echo "Starting massive evaluation script across all ML and Transformer models..."
 
 python -u src/evaluate_all_models.py
+python -u src/evaluate_with_malayalam.py
+
 
 echo "Evaluation finished successfully!"

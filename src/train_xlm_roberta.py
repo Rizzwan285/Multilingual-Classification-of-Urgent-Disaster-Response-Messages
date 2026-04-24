@@ -5,6 +5,7 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 from sklearn.utils.class_weight import compute_class_weight
+<<<<<<< HEAD
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from transformers import (
     AutoTokenizer, 
@@ -27,11 +28,35 @@ REAL_CSV = BASE_DIR / "datasets" / "processed" / "humaid_processed.csv"
 AUGMENTED_CSV = BASE_DIR / "datasets" / "processed" / "humaid_train_augmented.csv"
 RESULTS_DIR = BASE_DIR / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+=======
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
+from datetime import datetime
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--model_name", type=str, required=True)
+parser.add_argument("--run_id", type=str, default=None, help="Unique identifier to prevent overwriting")
+args = parser.parse_args()
+
+run_identifier = args.run_id if args.run_id else datetime.now().strftime("%Y%m%d_%H%M%S")
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+DATA_PATH = os.path.join(ROOT_DIR, "datasets", "processed", "humaid_processed.csv")
+MODEL_LOAD_PATH = os.path.join(ROOT_DIR, "offline_models", args.model_name)
+
+# Updated Paths to use the timestamp
+RESULTS_DIR = os.path.join(ROOT_DIR, "results", f"{args.model_name}_{run_identifier}")
+OUTPUT_DIR = os.path.join(RESULTS_DIR, "checkpoints")
+SAVE_PATH = os.path.join(RESULTS_DIR, "final_model")
+LOG_DIR = os.path.join(RESULTS_DIR, "logs")
+>>>>>>> 54073d1 (Updated the files)
 
 LABEL_NAMES = ['Situational Awareness', 'Critical Rescue', 'Volunteering and Donations', 'Irrelevant', 'Resource Requests']
 label2id = {label: i for i, label in enumerate(LABEL_NAMES)}
 id2label = {i: label for i, label in enumerate(LABEL_NAMES)}
 
+<<<<<<< HEAD
 print("Loading datasets...")
 # Load REAL data ONLY to extract the Dev and Test splits
 real_df = pd.read_csv(REAL_CSV)
@@ -106,6 +131,31 @@ def main():
     print("="*60)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+=======
+def train_model():
+    print(f"Loading the dataset for {args.model_name}")
+    df = pd.read_csv(DATA_PATH)
+    
+    train_df = df[df['split'] == 'train'].copy()
+    val_df = df[df['split'] == 'dev'].copy()
+    
+    train_df['label'] = train_df['target_label'].map(label2id)
+    val_df['label'] = val_df['target_label'].map(label2id)
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_LOAD_PATH)
+
+    def tokenize_function(examples):
+        return tokenizer(examples["clean_text"], padding="max_length", truncation=True, max_length=128)
+
+    train_dataset = Dataset.from_pandas(train_df[['clean_text', 'label']])
+    val_dataset = Dataset.from_pandas(val_df[['clean_text', 'label']])
+
+    print("Applying tokenizer to the datasets...")
+    tokenized_train = train_dataset.map(tokenize_function, batched=True)
+    tokenized_val = val_dataset.map(tokenize_function, batched=True)
+
+    print(f"Loading model architecture from {MODEL_LOAD_PATH}")
+>>>>>>> 54073d1 (Updated the files)
     model = AutoModelForSequenceClassification.from_pretrained(
         model_name, 
         num_labels=len(LABEL_NAMES),
@@ -113,6 +163,7 @@ def main():
         label2id=label2id
     )
 
+<<<<<<< HEAD
     train_encodings = tokenizer(train_df['clean_text'].tolist(), truncation=True, padding=True, max_length=128)
     dev_encodings = tokenizer(dev_df['clean_text'].tolist(), truncation=True, padding=True, max_length=128)
     test_encodings = tokenizer(test_df['clean_text'].tolist(), truncation=True, padding=True, max_length=128)
@@ -120,10 +171,31 @@ def main():
     train_dataset = DisasterDataset(train_encodings, train_df['label_id'].tolist())
     dev_dataset = DisasterDataset(dev_encodings, dev_df['label_id'].tolist())
     test_dataset = DisasterDataset(test_encodings, test_df['label_id'].tolist())
+=======
+    print("Calculating Class Weights to handle dataset imbalance...")
+    class_weights = compute_class_weight(
+        class_weight='balanced', 
+        classes=np.unique(train_df['label']), 
+        y=train_df['label']
+    )
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(device)
+    
+    class WeightedTrainer(Trainer):
+        def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+            labels = inputs.pop("labels")
+            outputs = model(**inputs)
+            logits = outputs.logits
+            loss_fct = nn.CrossEntropyLoss(weight=weights_tensor)
+            loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+            return (loss, outputs) if return_outputs else loss
+>>>>>>> 54073d1 (Updated the files)
 
     output_dir = RESULTS_DIR / f"{local_name}_{TIMESTAMP}"
     
     training_args = TrainingArguments(
+<<<<<<< HEAD
         output_dir=str(output_dir),
         num_train_epochs=4, # XLM-R sometimes benefits from a slightly longer training cycle
         per_device_train_batch_size=32,
@@ -140,6 +212,23 @@ def main():
     )
 
     trainer = WeightedLossTrainer(
+=======
+        output_dir=OUTPUT_DIR,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        learning_rate=2e-5,              
+        per_device_train_batch_size=64,  
+        per_device_eval_batch_size=64,
+        num_train_epochs=3,
+        weight_decay=0.01,
+        fp16=True,
+        logging_dir=LOG_DIR,
+        report_to="none",
+        ddp_find_unused_parameters=False
+    )
+
+    trainer = WeightedTrainer(
+>>>>>>> 54073d1 (Updated the files)
         model=model,
         args=training_args,
         train_dataset=train_dataset,
