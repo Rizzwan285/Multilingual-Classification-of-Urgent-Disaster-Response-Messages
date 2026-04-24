@@ -1,7 +1,6 @@
 nlp_env
 
-datasets/raw/
-!datasets/raw/README.md
+
 # Ignore everything inside the offline_models directory
 offline_models/*
 

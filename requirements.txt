@@ -34,3 +34,10 @@ jupyter
 
 protobuf 
 sentencepiece
+
+# api and env variables
+python-dotenv
+groq
+
+# NLP tasks
+nltk
