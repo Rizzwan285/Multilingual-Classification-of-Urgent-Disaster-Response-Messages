@@ -1,0 +1,77 @@
+{
+  "run": "real_only",
+  "model": "Linear_SVM",
+  "dev": {
+    "split": "dev",
+    "accuracy": 0.7584611316763618,
+    "macro_f1": 0.709654762590554,
+    "macro_precision": 0.7155746112689314,
+    "macro_recall": 0.7046305149773723,
+    "per_class_f1": {
+      "Critical Rescue": 0.8804299149126735,
+      "Resource Requests": 0.4530612244897959,
+      "Situational Awareness": 0.7604813664596274,
+      "Volunteering and Donations": 0.799719232569022,
+      "Irrelevant": 0.6545820745216515
+    }
+  },
+  "test": {
+    "split": "test",
+    "accuracy": 0.7586839779756644,
+    "macro_f1": 0.7086227410336452,
+    "macro_precision": 0.71220173709722,
+    "macro_recall": 0.7055792652525587,
+    "per_class_f1": {
+      "Critical Rescue": 0.873012214796036,
+      "Resource Requests": 0.45010183299389,
+      "Situational Awareness": 0.7627204030226701,
+      "Volunteering and Donations": 0.8034861509073543,
+      "Irrelevant": 0.6537931034482759
+    }
+  },
+  "test_classification_report": {
+    "Critical Rescue": {
+      "precision": 0.8720073664825047,
+      "recall": 0.8740193816335948,
+      "f1-score": 0.873012214796036,
+      "support": 2167.0
+    },
+    "Resource Requests": {
+      "precision": 0.4742489270386266,
+      "recall": 0.42829457364341084,
+      "f1-score": 0.45010183299389,
+      "support": 516.0
+    },
+    "Situational Awareness": {
+      "precision": 0.7674371451743714,
+      "recall": 0.7580612858001202,
+      "f1-score": 0.7627204030226701,
+      "support": 4993.0
+    },
+    "Volunteering and Donations": {
+      "precision": 0.793070940372378,
+      "recall": 0.8141785627873216,
+      "f1-score": 0.8034861509073543,
+      "support": 4133.0
+    },
+    "Irrelevant": {
+      "precision": 0.6542443064182195,
+      "recall": 0.653342522398346,
+      "f1-score": 0.6537931034482759,
+      "support": 2902.0
+    },
+    "accuracy": 0.7586839779756644,
+    "macro avg": {
+      "precision": 0.71220173709722,
+      "recall": 0.7055792652525588,
+      "f1-score": 0.7086227410336452,
+      "support": 14711.0
+    },
+    "weighted avg": {
+      "precision": 0.757429491479836,
+      "recall": 0.7586839779756644,
+      "f1-score": 0.7579667483846808,
+      "support": 14711.0
+    }
+  }
+}

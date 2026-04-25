@@ -1,19 +1,12 @@
 nlp_env
 
-
 # Ignore everything inside the offline_models directory
 offline_models/*
 
 # EXCEPT for the ml_baselines folder and its contents
 !offline_models/ml_baselines/
 
-<<<<<<< HEAD
-trained_models/*
-!trained_models/ml_baselines
-
-=======
 trained_models/
->>>>>>> 54073d1 (Updated the files)
 results/local*
 
 # --- LOGS & SLURM OUTPUTS ---
@@ -46,3 +39,7 @@ notebooks/.ipynb_checkpoints/
 .vscode
 
 .env
+
+results/*
+
+datasets/raw/*

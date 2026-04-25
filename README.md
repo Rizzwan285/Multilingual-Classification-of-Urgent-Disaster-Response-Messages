@@ -10,6 +10,12 @@
 
 ---
 
+> **Project root:** The repository is meant to be used from the project root (the folder shown as `.` in `path.txt`).
+> **Virtual environment:** The recommended local environment name is `nlp_env`.
+> **Ignored/generated folders:** `trained_models/`, `results/local*/`, and almost all of `offline_models/` are treated as local/generated artifacts and are excluded by `.gitignore`.
+
+---
+
 ## Introduction
 
 Social media platforms like Twitter, Telegram, and WhatsApp become critical communication channels during natural disasters. Affected people post urgent appeals for rescue, food, medical aid, and shelter. However, the massive volume of messages — most of which are non-urgent or informational — overwhelms emergency response organizations.
@@ -26,15 +32,11 @@ This project builds a multilingual classification system that categorizes disast
 | **Situational Awareness** | Infrastructure damage, weather updates, caution advisories, general info |
 | **Irrelevant** | Sympathy messages, unrelated content, unclear/unjudgeable posts |
 
-## Datasets
+## Dataset
 
-### 1. HumAID
+### HumAID
 
 The [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset contains ~77K manually annotated disaster-related tweets from 17 major natural disaster events (2016–2019), including earthquakes, hurricanes, wildfires, and floods. Each tweet is labeled with one of 11 humanitarian categories. This is used as the primary dataset for training and evaluating all models.
-
-### 2. Multilingual Disaster Response Messages
-
-The [Disaster Response Messages](https://github.com/rmunro/disaster_response_messages) dataset by Robert Munro contains ~25K messages from the Haiti earthquake (2010), Pakistan floods (2010), and Hurricane Sandy (2012). Messages are labeled with 38 binary categories. This dataset includes original messages in Haitian Creole and Urdu alongside English translations. It is used in separate experiments to study the effect of adding cross-domain training data on model performance.
 
 ### Label Mapping (HumAID)
 
@@ -50,37 +52,46 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 
 ## Repository Structure
 
-```
+```text
 ├── README.md
 ├── requirements.txt
 ├── LICENSE
+├── .gitignore
+├── path.txt
 │
 ├── notebooks/
-│   ├── Data_Preprocessing.ipynb            # Data loading, label mapping, preprocessing, EDA
-│   └── Baseline_SVM.ipynb                  # TF-IDF + LinearSVC
+│   ├── Data_Preprocessing.ipynb
+│   ├── Baseline_SVM.ipynb
+│   ├── Baseline_NaiveBayes.ipynb
+│   ├── Baseline_Logistic_Regression.ipynb
+│   └── Models_Evaluation.md / .ipynb
 │
 ├── datasets/
-│   ├── raw/                                # Original dataset files
-│   │   ├── HumAID_data_events_set1_47K/    # HumAID set1 — 11 events (~47K tweets)
-│   │   ├── HumAID_data_events_set2_29K/    # HumAID set2 — 6 events (~29K tweets)
-│   │   └── disaster_response_messages/     # Munro dataset (~25K messages)
+│   ├── raw/
+│   │   ├── HumAID_data_events_set1_47K/
+│   │   ├── HumAID_data_events_set2_29K/
+│   │   └── disaster_response_messages/
 │   ├── processed/
-│   │   └── humaid_processed.csv            # Output of Data_Preprocessing.ipynb
-│   └── indian_language/                    # Manually annotated regional language dataset
+│   │   └── humaid_processed.csv
+│   └── indian_language/
+│
+├── offline_models/
+│   └── ml_baselines/            # only tracked exception inside offline_models/
+│
+├── trained_models/              # generated locally; ignored by git
 │
 ├── results/
 │   ├── plots/
-│   │   ├── eda/                            # EDA visualizations
-│   │   └── svm/                            # SVM baseline plots
-│   ├── svm_results.json
-│   └── svm_errors.csv
+│   ├── evaluation/
+│   └── local*/                  # generated locally; ignored by git
 │
 └── docs/
     ├── project_proposal.pdf
     └── weekly_reports/
 ```
 
-> **Note:** This structure will grow as more models are added. New plot subfolders and result files will be added for each model (Naive Bayes, Logistic Regression, transformer models, etc.).
+
+> **Note:** `trained_models/` is where fine-tuned checkpoints are saved, but it is ignored by git. The same applies to most transformer run outputs under `results/local*/`. The only folder inside `offline_models/` intended to remain tracked is `offline_models/ml_baselines/`.
 
 ## Getting Started
 
@@ -104,27 +115,29 @@ cd Multilingual-Classification-of-Urgent-Disaster-Response-Messages
 
 **Windows:**
 ```bash
-python -m venv venv
-venv\Scripts\activate
+python -m venv nlp_env
+nlp_env\Scripts\activate
 ```
 
 **Linux / macOS:**
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv nlp_env
+source nlp_env/bin/activate
 ```
 
-### 4. Update the Base Path
+### 3. Update the Base Path
 
-Open `notebooks/Data_Preprocessing.ipynb` and update `BASE_DIR` in the configuration cell to point to your project directory:
+Open `notebooks/Data_Preprocessing.ipynb` and update `BASE_DIR` in the configuration cell so it matches the project root logic used in the notebooks:
 
 ```python
-BASE_DIR = r"C:\path\to\your\disaster-response-classification"
+from pathlib import Path
+BASE_DIR = Path.cwd().parent if Path.cwd().name in ("src", "notebooks") else Path.cwd()
 ```
 
-Update the same `BASE_DIR` in all other notebooks as well.
+Update the same `BASE_DIR` logic in all other notebooks as well.
 
-### 5. Run the Notebooks
+
+### 4. Run the Notebooks
 
 Run the notebooks **in order**. Each notebook depends on the output of the previous one.
 
@@ -133,22 +146,21 @@ Run the notebooks **in order**. Each notebook depends on the output of the previ
 | 1 | `Data_Preprocessing.ipynb` | Loads raw data, maps labels, preprocesses text, generates EDA plots, saves `humaid_processed.csv` | No |
 | 2 | `Baseline_SVM.ipynb` | TF-IDF + LinearSVC baseline | No |
 
-More notebooks will be added as the project progresses (Naive Bayes, Logistic Regression, transformer models, cross-lingual evaluation, error analysis).
 
 ## Reproducing Results
 
 ```bash
 # 1. Clone and set up environment
 git clone https://github.com/Rizzwan285/Multilingual-Classification-of-Urgent-Disaster-Response-Messages.git
-cd disaster-response-classification
-python -m venv venv
-venv\Scripts\activate          # Windows
+cd Multilingual-Classification-of-Urgent-Disaster-Response-Messages
+python -m venv nlp_env
+nlp_env\Scripts\activate          # Windows
+# source nlp_env/bin/activate      # Linux / macOS
 
 # 2. Update BASE_DIR in all notebooks
 
 # 3. Run notebooks in order
 jupyter notebook notebooks/
-```
 
 ## Dependencies
 
@@ -162,6 +174,19 @@ nltk>=3.8.0
 ```
 
 Transformer-related dependencies (`transformers`, `torch`) will be needed for later notebooks.
+
+## Git Ignore Notes
+
+The following paths are intentionally not tracked by git according to `.gitignore`:
+
+- `trained_models/`
+- `results/local*/`
+- `offline_models/*` except `offline_models/ml_baselines/`
+- `nlp_env/`, `.venv/`, `nlp_master/`
+- `nlp_logs/`, `logs_*/`, `*.out`, `*.err`
+- cache and IDE folders such as `__pycache__/`, `.ipynb_checkpoints/`, `.vscode/`, `.idea/`
+
+These directories are created locally when you train or evaluate models and should not be committed.
 
 ## Evaluation Metrics
 
@@ -182,7 +207,6 @@ Metrics reported:
 
 If you want to download the datasets independently:
 - **HumAID:** [https://crisisnlp.qcri.org/humaid_dataset.html](https://crisisnlp.qcri.org/humaid_dataset.html)
-- **Disaster Response Messages:** [https://github.com/rmunro/disaster_response_messages](https://github.com/rmunro/disaster_response_messages)
 
 ## Citation
 
@@ -193,20 +217,16 @@ If you want to download the datasets independently:
   booktitle={Proceedings of the International AAAI Conference on Web and Social Media},
   year={2021}
 }
-
-@phdthesis{munro12dissertation,
-  author={Robert Munro},
-  title={Processing short message communications in low-resource languages},
-  school={Stanford University},
-  year={2012},
-  url={https://purl.stanford.edu/cg721hb0673}
-}
 ```
 
 ## License
 
-This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset and Disaster Response Messages dataset are used under their respective licensing terms.
+This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset is used under their respective licensing terms.
 
 ## Contact
 
 For questions or issues, contact any team member or raise an issue on this repository.
+
+- Muhamed Rizwan Mehaboob - 142301026@smail.iitpkd.ac.in
+- Anju Sasikumar - 142301004@smail.iitpkd.ac.in
+- Kotha Adarsh Reddy - 102301018@smail.iitpkd.ac.in
