@@ -10,9 +10,11 @@
 
 ---
 
-> **Project root:** The repository is meant to be used from the project root (the folder shown as `.` in `path.txt`).
+> **Project root:** Run every command from the repository root, which is also the folder shown as `.` in `path.txt`.
+>
 > **Virtual environment:** The recommended local environment name is `nlp_env`.
-> **Ignored/generated folders:** `trained_models/`, `results/local*/`, and almost all of `offline_models/` are treated as local/generated artifacts and are excluded by `.gitignore`.
+>
+> **Ignored/generated folders:** `trained_models/`, `results/local*/`, and almost all of `offline_models/` are local/generated artifacts and are excluded by `.gitignore`.
 
 ---
 
@@ -36,7 +38,7 @@ This project builds a multilingual classification system that categorizes disast
 
 ### HumAID
 
-The [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset contains ~77K manually annotated disaster-related tweets from 17 major natural disaster events (2016–2019), including earthquakes, hurricanes, wildfires, and floods. Each tweet is labeled with one of 11 humanitarian categories. This is used as the primary dataset for training and evaluating all models.
+The [HumAID](https://crisisnlp.qcri.org/humaid_dataset.html) dataset contains about 77K manually annotated disaster-related tweets from 17 major natural disaster events (2016–2019), including earthquakes, hurricanes, wildfires, and floods. Each tweet is labeled with one of 11 humanitarian categories. This is used as the primary dataset for training and evaluating all models.
 
 ### Label Mapping (HumAID)
 
@@ -64,7 +66,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 │   ├── Baseline_SVM.ipynb
 │   ├── Baseline_NaiveBayes.ipynb
 │   ├── Baseline_Logistic_Regression.ipynb
-│   └── Models_Evaluation.md / .ipynb
+│   └── Models_Evaluation.ipynb / .md
 │
 ├── datasets/
 │   ├── raw/
@@ -90,8 +92,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
     └── weekly_reports/
 ```
 
-
-> **Note:** `trained_models/` is where fine-tuned checkpoints are saved, but it is ignored by git. The same applies to most transformer run outputs under `results/local*/`. The only folder inside `offline_models/` intended to remain tracked is `offline_models/ml_baselines/`.
+> **Note:** `trained_models/` stores fine-tuned checkpoints and is ignored by git. The same applies to most transformer run outputs under `results/local*/`. The only folder inside `offline_models/` intended to remain tracked is `offline_models/ml_baselines/`.
 
 ## Getting Started
 
@@ -100,7 +101,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 - Python 3.9 or higher
 - pip (Python package manager)
 - Git
-- (Optional) NVIDIA GPU with CUDA for transformer fine-tuning (needed later)
+- CUDA-capable GPU recommended for transformer fine-tuning
 
 ### 1. Clone the Repository
 
@@ -109,9 +110,7 @@ git clone https://github.com/Rizzwan285/Multilingual-Classification-of-Urgent-Di
 cd Multilingual-Classification-of-Urgent-Disaster-Response-Messages
 ```
 
-> **Note:** The raw datasets are already included in this repository under `datasets/raw/`. You don't need to download them separately after cloning.
-
-### 2. Create a Virtual Environment (Recommended)
+### 2. Create a Virtual Environment
 
 **Windows:**
 ```bash
@@ -125,27 +124,100 @@ python3 -m venv nlp_env
 source nlp_env/bin/activate
 ```
 
-### 3. Update the Base Path
+### 3. Install the Requirements
 
-Open `notebooks/Data_Preprocessing.ipynb` and update `BASE_DIR` in the configuration cell so it matches the project root logic used in the notebooks:
-
-```python
-from pathlib import Path
-BASE_DIR = Path.cwd().parent if Path.cwd().name in ("src", "notebooks") else Path.cwd()
+```bash
+pip install -r requirements.txt
 ```
 
-Update the same `BASE_DIR` logic in all other notebooks as well.
+### 4. Prepare the Dataset
 
+The project expects the HumAID dataset to be available in `datasets/raw/`.  
+If it is not already present, download it from the official HumAID page:
 
-### 4. Run the Notebooks
+- https://crisisnlp.qcri.org/humaid_dataset.html
 
-Run the notebooks **in order**. Each notebook depends on the output of the previous one.
+After downloading, place the extracted files inside the `datasets/raw/` directory.
 
-| Order | Notebook | Description | GPU Required |
-|---|---|---|---|
-| 1 | `Data_Preprocessing.ipynb` | Loads raw data, maps labels, preprocesses text, generates EDA plots, saves `humaid_processed.csv` | No |
-| 2 | `Baseline_SVM.ipynb` | TF-IDF + LinearSVC baseline | No |
+### 5. Hugging Face Login for Model Downloads
 
+The base transformer download script can fetch public models directly. If a model repository is gated or private, authenticate first.
+
+Recommended setup:
+
+1. Create a Hugging Face account.
+2. Open your Hugging Face settings and create a **User Access Token** with **read** access.
+3. Log in once on your machine:
+
+```bash
+huggingface-cli login
+```
+
+Paste the token when prompted.
+
+You can also log in from Python notebooks with:
+
+```python
+from huggingface_hub import notebook_login
+notebook_login()
+```
+
+Once logged in, the token is stored locally and can be reused by the download and evaluation scripts.
+
+### 6. Run Data Preprocessing
+
+Run:
+
+```bash
+jupyter notebook notebooks/Data_Preprocessing.ipynb
+```
+
+This notebook loads the raw data, maps labels, preprocesses text, and saves the processed dataset.
+
+### 7. Download the Base Transformer Models
+
+Run the download script:
+
+```bash
+python download_base_transformers.py
+```
+
+This downloads the base Hugging Face models into `offline_models/`.  
+If any model is gated or private, make sure you are logged in to Hugging Face before running this step.
+
+### 8. Train the ML Baselines
+
+Run the baseline notebooks from the same virtual environment:
+
+- `notebooks/Baseline_SVM.ipynb`
+- `notebooks/Baseline_NaiveBayes.ipynb`
+- `notebooks/Baseline_Logistic_Regression.ipynb`
+
+These do not require a GPU.
+
+### 9. Train the Transformer Models
+
+Run the transformer training notebook(s) from the same virtual environment.
+
+A GPU is strongly recommended here. If you do not have a GPU, you can skip transformer training and still evaluate the ML baselines.
+
+The trained checkpoints will be saved in `trained_models/`, and these folders are ignored by git.
+
+### 10. Evaluate the Models
+
+Run:
+
+```bash
+jupyter notebook notebooks/Models_Evaluation.ipynb
+```
+
+This notebook:
+- evaluates the ML baselines,
+- evaluates the transformer models if the fine-tuned checkpoints are available,
+- falls back to local offline transformer checkpoints when needed,
+- and can download missing Hugging Face models if your environment has access.
+
+The evaluation outputs, confusion matrices, and summary tables are saved inside `results/evaluation/`.
 
 ## Reproducing Results
 
@@ -153,27 +225,53 @@ Run the notebooks **in order**. Each notebook depends on the output of the previ
 # 1. Clone and set up environment
 git clone https://github.com/Rizzwan285/Multilingual-Classification-of-Urgent-Disaster-Response-Messages.git
 cd Multilingual-Classification-of-Urgent-Disaster-Response-Messages
-python -m venv nlp_env
-nlp_env\Scripts\activate          # Windows
-# source nlp_env/bin/activate      # Linux / macOS
+python3 -m venv nlp_env
+source nlp_env/bin/activate
 
-# 2. Update BASE_DIR in all notebooks
+# 2. Install dependencies
+pip install -r requirements.txt
 
-# 3. Run notebooks in order
-jupyter notebook notebooks/
+# 3. Prepare dataset
+# Download HumAID if needed and place it under datasets/raw/
+
+# 4. Preprocess data
+jupyter notebook notebooks/Data_Preprocessing.ipynb
+
+# 5. Download base transformer models
+python download_base_transformers.py
+
+# 6. Train baselines
+jupyter notebook notebooks/Baseline_SVM.ipynb
+jupyter notebook notebooks/Baseline_NaiveBayes.ipynb
+jupyter notebook notebooks/Baseline_Logistic_Regression.ipynb
+
+# 7. Train transformer models on GPU if available
+jupyter notebook notebooks/<transformer_training_notebook>.ipynb
+
+# 8. Evaluate all available models
+jupyter notebook notebooks/Models_Evaluation.ipynb
+```
 
 ## Dependencies
 
-```
-pandas>=1.5.0
-numpy>=1.23.0
-matplotlib>=3.6.0
-seaborn>=0.12.0
-scikit-learn>=1.2.0
-nltk>=3.8.0
+Core dependencies:
+
+```text
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+nltk
+torch
+transformers
+huggingface_hub
+joblib
+tqdm
+indic_transliteration
 ```
 
-Transformer-related dependencies (`transformers`, `torch`) will be needed for later notebooks.
+Install them through `requirements.txt` whenever possible.
 
 ## Git Ignore Notes
 
@@ -200,13 +298,13 @@ Metrics reported:
 
 ## Known Issues
 
-- **Class imbalance:** Resource Requests is the smallest class (~3.4% of data). All models use balanced class weights to mitigate this.
-- **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect our experiments.
+- **Class imbalance:** Resource Requests is the smallest class. Balanced class weights are used to mitigate this.
+- **Transformer training:** Fine-tuning is much slower on CPU and is best done on GPU.
+- **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect the experiments.
 
 ## Dataset Sources
 
-If you want to download the datasets independently:
-- **HumAID:** [https://crisisnlp.qcri.org/humaid_dataset.html](https://crisisnlp.qcri.org/humaid_dataset.html)
+- **HumAID:** https://crisisnlp.qcri.org/humaid_dataset.html
 
 ## Citation
 
@@ -221,7 +319,7 @@ If you want to download the datasets independently:
 
 ## License
 
-This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset is used under their respective licensing terms.
+This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset is used under its respective licensing terms.
 
 ## Contact
 
