@@ -8,6 +8,16 @@
 - Anju Sasikumar (142301004)
 - Kotha Adarsh Reddy (102301018)
 
+---
+
+> **Project root:** Run every command from the repository root, which is also the folder shown as `.` in `path.txt`.
+>
+> **Virtual environment:** The recommended local environment name is `nlp_env`.
+>
+> **Generated folders:** `trained_models/`, `results/local*/`, and most of `offline_models/` are generated locally and are ignored by git.
+
+---
+
 ## Introduction
 
 Social media platforms like Twitter, Telegram, and WhatsApp become critical communication channels during natural disasters. Affected people post urgent appeals for rescue, food, medical aid, and shelter. However, the massive volume of messages — most of which are non-urgent or informational — overwhelms emergency response organizations.
@@ -23,6 +33,8 @@ This project builds a multilingual classification system that categorizes disast
 | **Volunteering and Donations** | Offers of help, donation drives, volunteer coordination |
 | **Situational Awareness** | Infrastructure damage, weather updates, caution advisories, general info |
 | **Irrelevant** | Sympathy messages, unrelated content, unclear/unjudgeable posts |
+
+---
 
 ## Dataset
 
@@ -42,6 +54,8 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 | `caution_and_advice`, `infrastructure_and_utility_damage`, `other_relevant_information` | Situational Awareness |
 | `sympathy_and_support`, `not_humanitarian`, `dont_know_cant_judge` | Irrelevant |
 
+---
+
 ## Repository Structure
 
 ```text
@@ -49,6 +63,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 ├── requirements.txt
 ├── LICENSE
 ├── .gitignore
+├── .env.example
 ├── path.txt
 │
 ├── notebooks/
@@ -56,7 +71,12 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 │   ├── Baseline_SVM.ipynb
 │   ├── Baseline_NaiveBayes.ipynb
 │   ├── Baseline_Logistic_Regression.ipynb
-│   └── Models_Evaluation.ipynb / .md
+│   └── Models_Evaluation.ipynb
+│
+├── src/
+│   ├── download_base_transformers.py
+│   ├── upload_model.py
+│   └── ...
 │
 ├── datasets/
 │   ├── raw/
@@ -68,7 +88,7 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 │   └── indian_language/
 │
 ├── offline_models/
-│   └── ml_baselines/            # only tracked exception inside offline_models/
+│   └── ml_baselines/            # tracked exception inside offline_models/
 │
 ├── trained_models/              # generated locally; ignored by git
 │
@@ -84,8 +104,6 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 
 > **Note:** `trained_models/` stores fine-tuned checkpoints and is ignored by git. The same applies to most transformer run outputs under `results/local*/`. The only folder inside `offline_models/` intended to remain tracked is `offline_models/ml_baselines/`.
 
----
-> **Virtual environment:** The recommended local environment name is `nlp_env`.
 ---
 
 ## Getting Started
@@ -124,7 +142,56 @@ source nlp_env/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Prepare the Dataset
+---
+
+## Environment Variables
+
+Some scripts use API tokens. Do not commit real secrets to git.
+
+### 4. Create a `.env` file
+
+Copy the example file:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and add your tokens:
+
+```bash
+HF_TOKEN=your_huggingface_token_here
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### 5. Important `.env` rules
+
+- Do **not** add spaces around `=`
+- Do **not** put quotes around the values
+- Do **not** commit `.env`
+- Keep `.env.example` in the repo as a placeholder only
+
+### 6. Hugging Face access for gated models
+
+Some Hugging Face models are public, while others are gated.
+
+For this project:
+
+- `xlm-roberta-base` is public
+- `google/muril-base-cased` is public
+- `bert-base-multilingual-cased` is public
+- `ai4bharat/indic-bert` is gated and requires access approval
+
+Before downloading `ai4bharat/indic-bert`, log in and accept access on Hugging Face:
+
+1. Open the model page on Hugging Face
+2. Click **Agree and access** / **Accept terms**
+3. Make sure your `HF_TOKEN` is added in `.env`
+
+The download and evaluation scripts will use `HF_TOKEN` automatically when needed.
+
+---
+
+## Prepare the Dataset
 
 The project expects the HumAID dataset to be available in `datasets/raw/`.  
 If it is not already present, download it from the official HumAID page:
@@ -133,34 +200,13 @@ If it is not already present, download it from the official HumAID page:
 
 After downloading, place the extracted files inside the `datasets/raw/` directory.
 
-### 5. Hugging Face Login for Model Downloads
+---
 
-The base transformer download script can fetch public models directly. If a model repository is gated or private, authenticate first.
+## Run the Project Step by Step
 
-Recommended setup:
+### 1. Run Data Preprocessing
 
-1. Create a Hugging Face account.
-2. Open your Hugging Face settings and create a **User Access Token** with **read** access.
-3. Log in once on your machine:
-
-```bash
-huggingface-cli login
-```
-
-Paste the token when prompted.
-
-You can also log in from Python notebooks with:
-
-```python
-from huggingface_hub import notebook_login
-notebook_login()
-```
-
-Once logged in, the token is stored locally and can be reused by the download and evaluation scripts.
-
-### 6. Run Data Preprocessing
-
-Run:
+Open and run:
 
 ```bash
 jupyter notebook notebooks/Data_Preprocessing.ipynb
@@ -168,18 +214,26 @@ jupyter notebook notebooks/Data_Preprocessing.ipynb
 
 This notebook loads the raw data, maps labels, preprocesses text, and saves the processed dataset.
 
-### 7. Download the Base Transformer Models
+---
 
-Run the download script:
+### 2. Download the Base Transformer Models
+
+Run:
 
 ```bash
-python download_base_transformers.py
+python src/download_base_transformers.py
 ```
 
-This downloads the base Hugging Face models into `offline_models/`.  
-If any model is gated or private, make sure you are logged in to Hugging Face before running this step.
+This downloads the base Hugging Face models into `offline_models/`.
 
-### 8. Train the ML Baselines
+It will:
+- download public models directly
+- use `HF_TOKEN` for gated models if needed
+- skip models that are already present locally
+
+---
+
+### 3. Train the ML Baselines
 
 Run the baseline notebooks from the same virtual environment:
 
@@ -189,7 +243,9 @@ Run the baseline notebooks from the same virtual environment:
 
 These do not require a GPU.
 
-### 9. Train the Transformer Models
+---
+
+### 4. Train the Transformer Models
 
 Run the transformer training notebook(s) from the same virtual environment.
 
@@ -197,7 +253,26 @@ A GPU is strongly recommended here. If you do not have a GPU, you can skip trans
 
 The trained checkpoints will be saved in `trained_models/`, and these folders are ignored by git.
 
-### 10. Evaluate the Models
+---
+
+### 5. Upload Trained Models to Hugging Face
+
+After training, run:
+
+```bash
+python src/upload_model.py
+```
+
+This will upload the fine-tuned models to Hugging Face so that other users can run the project without retraining.
+
+Important:
+- `HF_TOKEN` must be present in `.env`
+- the token must have **Write** access
+- the Hugging Face repos must match the names used in the script
+
+---
+
+### 6. Evaluate the Models
 
 Run:
 
@@ -213,7 +288,11 @@ This notebook:
 
 The evaluation outputs, confusion matrices, and summary tables are saved inside `results/evaluation/`.
 
-## Reproducing Results
+If a local transformer checkpoint is missing, the evaluation notebook can download the corresponding model from Hugging Face using the repo mapping inside the notebook.
+
+---
+
+## Reproducing Results from Scratch
 
 ```bash
 # 1. Clone and set up environment
@@ -225,26 +304,35 @@ source nlp_env/bin/activate
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Prepare dataset
+# 3. Set up environment variables
+cp .env.example .env
+# Add HF_TOKEN and GROQ_API_KEY inside .env
+
+# 4. Prepare dataset
 # Download HumAID if needed and place it under datasets/raw/
 
-# 4. Preprocess data
+# 5. Preprocess data
 jupyter notebook notebooks/Data_Preprocessing.ipynb
 
-# 5. Download base transformer models
-python download_base_transformers.py
+# 6. Download base transformer models
+python src/download_base_transformers.py
 
-# 6. Train baselines
+# 7. Train baselines
 jupyter notebook notebooks/Baseline_SVM.ipynb
 jupyter notebook notebooks/Baseline_NaiveBayes.ipynb
 jupyter notebook notebooks/Baseline_Logistic_Regression.ipynb
 
-# 7. Train transformer models on GPU if available
+# 8. Train transformer models on GPU if available
 jupyter notebook notebooks/<transformer_training_notebook>.ipynb
 
-# 8. Evaluate all available models
+# 9. Upload trained models to Hugging Face
+python src/upload_model.py
+
+# 10. Evaluate all available models
 jupyter notebook notebooks/Models_Evaluation.ipynb
 ```
+
+---
 
 ## Dependencies
 
@@ -263,9 +351,12 @@ huggingface_hub
 joblib
 tqdm
 indic_transliteration
+python-dotenv
 ```
 
 Install them through `requirements.txt` whenever possible.
+
+---
 
 ## Git Ignore Notes
 
@@ -274,11 +365,14 @@ The following paths are intentionally not tracked by git according to `.gitignor
 - `trained_models/`
 - `results/local*/`
 - `offline_models/*` except `offline_models/ml_baselines/`
+- `.env`
 - `nlp_env/`, `.venv/`, `nlp_master/`
 - `nlp_logs/`, `logs_*/`, `*.out`, `*.err`
 - cache and IDE folders such as `__pycache__/`, `.ipynb_checkpoints/`, `.vscode/`, `.idea/`
 
 These directories are created locally when you train or evaluate models and should not be committed.
+
+---
 
 ## Evaluation Metrics
 
@@ -290,15 +384,22 @@ Metrics reported:
 - Confusion matrix analysis
 - Dangerous false negative rate (urgent messages classified as non-urgent)
 
+---
+
 ## Known Issues
 
 - **Class imbalance:** Resource Requests is the smallest class. Balanced class weights are used to mitigate this.
 - **Transformer training:** Fine-tuning is much slower on CPU and is best done on GPU.
+- **IndicBERT access:** `ai4bharat/indic-bert` is gated on Hugging Face and requires accepted access before download.
 - **HumAID tweet text:** Some tweets may have been deleted from Twitter since the dataset was created. The dataset provides the tweet text directly, so this does not affect the experiments.
+
+---
 
 ## Dataset Sources
 
 - **HumAID:** https://crisisnlp.qcri.org/humaid_dataset.html
+
+---
 
 ## Citation
 
@@ -311,9 +412,13 @@ Metrics reported:
 }
 ```
 
+---
+
 ## License
 
 This project is for academic purposes as part of the NLP course at IIT Palakkad. The HumAID dataset is used under its respective licensing terms.
+
+---
 
 ## Contact
 
