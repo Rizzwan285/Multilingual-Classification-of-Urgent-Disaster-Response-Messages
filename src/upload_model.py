@@ -1,55 +1,99 @@
 import os
 import warnings
 from pathlib import Path
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from dotenv import load_dotenv
+
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers import logging as hf_logging
 
 warnings.filterwarnings("ignore")
 hf_logging.set_verbosity_error()
 
-# 1. Exact same path logic as your training script
+# -----------------------------
+# Load environment variables
+# -----------------------------
+load_dotenv()
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if HF_TOKEN:
+    print("HF_TOKEN detected. Will use it for gated models.\n")
+else:
+    print("No HF_TOKEN found. Public models will still download.\n")
+
+# -----------------------------
+# Path setup (same as before)
+# -----------------------------
 current_dir = Path.cwd()
-BASE_DIR    = current_dir.parent if current_dir.name in ("src", "notebooks") else current_dir
-TRAINED_MODELS_DIR = BASE_DIR / "trained_models"
+BASE_DIR = current_dir.parent if current_dir.name in ("src", "notebooks") else current_dir
+OFFLINE_DIR = BASE_DIR / "offline_models"
 
-# 2. DECIDE WHICH RUN TO UPLOAD ("aug" or "no_aug")
-TARGET_SUFFIX = "aug" 
+OFFLINE_DIR.mkdir(parents=True, exist_ok=True)
 
-models_to_upload = {
-    "local_muril":       "Rizwan285/muril-disaster-response",
-    "local_indic_bert":  "Rizwan285/indicbert-disaster-response",
-    "local_mbert":       "Rizwan285/mbert-disaster-response",
-    "local_xlm_roberta": "Rizwan285/xlm-roberta-disaster-response"
+# -----------------------------
+# Models to download
+# -----------------------------
+MODELS_TO_DOWNLOAD = {
+    "local_xlm_roberta": "xlm-roberta-base",
+    "local_muril":       "google/muril-base-cased",
+    "local_indic_bert":  "ai4bharat/indic-bert",  # gated model
+    "local_mbert":       "bert-base-multilingual-cased"
 }
 
-def upload_models():
-    print(f"Looking for models in: {TRAINED_MODELS_DIR}")
-    print(f"Targeting models with suffix: _{TARGET_SUFFIX}\n")
+# -----------------------------
+# Download function
+# -----------------------------
+def download_all_models():
+    print(f"Starting the download to: {OFFLINE_DIR}\n")
+    
+    for local_name, hf_id in MODELS_TO_DOWNLOAD.items():
+        save_path = OFFLINE_DIR / local_name
 
-    for local_name, hf_repo in models_to_upload.items():
-        # 3. CRITICAL FIX: Append the suffix to match the training output
-        folder_name = f"{local_name}_{TARGET_SUFFIX}"
-        model_path = TRAINED_MODELS_DIR / folder_name
-        
-        if not model_path.exists():
-            print(f"Skipping {local_name}: Could not find folder {model_path}")
+        # Skip if already downloaded
+        if save_path.exists() and (save_path / "config.json").exists():
+            print(f"Skipping {hf_id} (already exists)")
             continue
-            
-        print(f"Loading {folder_name}...")
+
+        print(f"\n--- Downloading {hf_id} ---")
+        save_path.mkdir(parents=True, exist_ok=True)
+
         try:
-            # Enforce local_files_only so it fails cleanly if the folder is empty
-            tokenizer = AutoTokenizer.from_pretrained(str(model_path), local_files_only=True)
-            model = AutoModelForSequenceClassification.from_pretrained(str(model_path), local_files_only=True)
-            
-            print(f"Pushing to Hugging Face as {hf_repo}...")
-            tokenizer.push_to_hub(hf_repo)
-            model.push_to_hub(hf_repo)
-            print(f"Successfully uploaded {folder_name}!\n")
-            
+            # -----------------------------
+            # Load tokenizer
+            # -----------------------------
+            tokenizer = AutoTokenizer.from_pretrained(
+                hf_id,
+                token=HF_TOKEN  # works for both public & gated
+            )
+            tokenizer.save_pretrained(str(save_path))
+
+            # -----------------------------
+            # Load model
+            # -----------------------------
+            model = AutoModelForSequenceClassification.from_pretrained(
+                hf_id,
+                num_labels=5,
+                token=HF_TOKEN
+            )
+            model.save_pretrained(str(save_path))
+
+            print(f"SUCCESS: {local_name} downloaded")
+
         except Exception as e:
-            print(f"Failed to upload {folder_name}: {e}\n")
+            print(f"FAILED: {hf_id}")
+            
+            # Helpful debugging hints
+            if "401" in str(e) or "gated" in str(e).lower():
+                print("→ This is likely a gated model.")
+                print("→ Go to Hugging Face and ACCEPT TERMS:")
+                print(f"   https://huggingface.co/{hf_id}")
+                print("→ Then rerun the script.\n")
+            else:
+                print(f"→ Error: {str(e)}\n")
 
-    print("All uploads finished!")
+    print("\nAll downloads attempted!")
 
+# -----------------------------
+# Run
+# -----------------------------
 if __name__ == "__main__":
-    upload_models()
+    download_all_models()
