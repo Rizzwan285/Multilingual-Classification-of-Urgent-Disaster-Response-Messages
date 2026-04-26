@@ -4,9 +4,9 @@
 **Instructor:** Dr. Swapnil Hingmire  
 
 **Team:**
+- Muhamed Rizwan Mehaboob (142301026)
 - Anju Sasikumar (142301004)
 - Kotha Adarsh Reddy (102301018)
-- Muhamed Rizwan Mehaboob (142301026)
 
 ---
 
