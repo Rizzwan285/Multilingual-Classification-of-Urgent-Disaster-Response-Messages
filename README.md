@@ -73,10 +73,12 @@ Full methodology, tables, and analysis are in [`docs/NLP_Project.pdf`](docs/NLP_
 │   ├── tsne.py                            # Optional: t-SNE plot of MuRIL embeddings (for report)
 │   └── upload_model.py                    # Optional: uploads fine-tuned models to Hugging Face
 │
-├── offline_models/
+├── trained_models/
 │   └── ml_baselines/                      # Trained .joblib baselines (committed)
 │       ├── real_only/                     # Trained on HumAID train split alone
 │       └── augmented/                     # Trained on humaid_train_augmented.csv
+|
+├── trained_models/                        
 │
 └── results/                               # Generated when notebooks/scripts run (see note below)
 ```
