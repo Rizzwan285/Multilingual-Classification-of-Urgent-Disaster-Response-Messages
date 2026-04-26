@@ -2,9 +2,6 @@
 
 A multilingual NLP pipeline that classifies disaster-related social media messages across English, Malayalam, and transliterated Manglish into five operational categories.
 
-**Course:** Natural Language Processing
-**Institution:** IIT Palakkad
-
 **Team:**
 - Muhamed Rizwan Mehaboob (142301026)
 - Anju Sasikumar (142301004)
