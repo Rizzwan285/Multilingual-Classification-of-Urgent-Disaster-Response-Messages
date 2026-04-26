@@ -8,16 +8,6 @@
 - Anju Sasikumar (142301004)
 - Kotha Adarsh Reddy (102301018)
 
----
-
-> **Project root:** Run every command from the repository root, which is also the folder shown as `.` in `path.txt`.
->
-> **Virtual environment:** The recommended local environment name is `nlp_env`.
->
-> **Ignored/generated folders:** `trained_models/`, `results/local*/`, and almost all of `offline_models/` are local/generated artifacts and are excluded by `.gitignore`.
-
----
-
 ## Introduction
 
 Social media platforms like Twitter, Telegram, and WhatsApp become critical communication channels during natural disasters. Affected people post urgent appeals for rescue, food, medical aid, and shelter. However, the massive volume of messages — most of which are non-urgent or informational — overwhelms emergency response organizations.
@@ -93,6 +83,10 @@ HumAID's 11 original humanitarian labels are mapped to our 5 target classes:
 ```
 
 > **Note:** `trained_models/` stores fine-tuned checkpoints and is ignored by git. The same applies to most transformer run outputs under `results/local*/`. The only folder inside `offline_models/` intended to remain tracked is `offline_models/ml_baselines/`.
+
+---
+> **Virtual environment:** The recommended local environment name is `nlp_env`.
+---
 
 ## Getting Started
 
